@@ -53,7 +53,7 @@ parse_arguments(
     }
 
     try {
-        *histogram_file = (std::string) parser.get<std::string>(1).c_str();
+        *histogram_file = (std::string) parser.get<std::string>(2).c_str();
     } catch (...) {
         std::cerr << "Failed to parse output histogram_file argument!:" << std::endl;
         return -1;
