@@ -24,21 +24,20 @@ wait_key()
 }
 
 int
-run_spatial_sampling(
+run_histogram_function(
     cv::Mat original_image,
     std::string output_dir_path,
     std::string file_prefix,
-    std::function<cv::Mat(cv::Mat)> down_function,
-    std::function<cv::Mat(cv::Mat)> up_function,
-    std::string inter_type
+    std::function<cv::Mat(cv::Mat)> histogram_function,
+    std::string mode_string
 )
 {
     cv::Mat up_image;
     // run the downsample function
-    original_image = down_function(original_image);
+    original_image = histogram_function(original_image);
     std::cout << "Image size is:\t\t\t" << original_image.cols << "x" << original_image.rows << std::endl;
 
-    std::string down_file_name = file_prefix + "_down_" + inter_type + ".png";
+    std::string down_file_name = file_prefix + "_down_" + mode_string + ".png";
     write_img_to_file(original_image, output_dir_path, down_file_name);
 
     cv::imshow(down_file_name, original_image);
@@ -75,34 +74,27 @@ main(int argc, const char** argv)
 
     cv::Mat original_image = og_image->image;
 
-    cv::imshow("original", og_image->image);
-    cv::waitKey(0);
-
-    std::function<cv::Mat(cv::Mat)> down_function;
-    std::function<cv::Mat(cv::Mat)> up_function;
-    std::string inter_type;
+    std::function<cv::Mat(cv::Mat)> histogram_function;
+    std::string mode_string;
 
     switch (mode) {
         case 1:
             // do deletions/replications
-            std::cout << "Using deletion and replication for sampling." << std::endl;
-            down_function = downsample_delete;
-            up_function = upsample_replicate;
-            inter_type = "deletion";
+            std::cout << "Histogram equalization." << std::endl;
+            histogram_function = downsample_delete;
+            mode_string = "equalization";
             break;
         case 2:
             // do the averaging/interpolation
-            std::cout << "Using averaging and interpolation for sampling." << std::endl;
-            down_function = downsample_average;
-            up_function = upsample_average;
-            inter_type = "average";
+            std::cout << "Histogram matching an image." << std::endl;
+            histogram_function = downsample_average;
+            mode_string = "matching_an_image";
             break;
         case 3:
             // do the pyraminds
-            std::cout << "Using pyramids for sampling." << std::endl;
-            down_function = downsample_pyramid;
-            up_function = upsample_pyramid;
-            inter_type = "pyramid";
+            std::cout << "Historgram matching a file." << std::endl;
+            histogram_function = downsample_pyramid;
+            mode_string = "matching_a_file";
             break;
         default:
             // no
@@ -110,12 +102,23 @@ main(int argc, const char** argv)
             return -1;
     }
 
-    return !run_spatial_sampling(
-        original_image,
-        output_dir_path,
-        og_image->file_name,
-        down_function,
-        up_function,
-        inter_type
-    );
+    // display the original image
+    cv::imshow("original", original_image);
+    cv::waitKey(0);
+
+    uint intensity_counts[256] = { 0 };    // map for intensity counts
+    build_intensity_map(original_image, intensity_counts);
+    uint16_t count = 0;
+    for (uint i = 0; i < 256; i++) {
+        ++count;
+        std::cout << i << ": " << intensity_counts[i] << std::endl;
+    }
+    std::cout << count;
+    // compute histogram of original image
+
+    // TODO equalize the histogram
+
+    // TODO apply the equalization
+
+    return 0;
 }

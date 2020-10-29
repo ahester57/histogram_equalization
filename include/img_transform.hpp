@@ -21,5 +21,6 @@ cv::Mat upsample_average(cv::Mat src);
 cv::Mat downsample_pyramid(cv::Mat src);
 cv::Mat upsample_pyramid(cv::Mat src);
 cv::Mat intensity_adjust(cv::Mat src, uint8_t level);
+void build_intensity_map(cv::Mat src, uint* intensity_counts);
 
 #endif

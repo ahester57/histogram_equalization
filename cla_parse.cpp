@@ -22,7 +22,7 @@ parse_arguments(
         "{@imagefile      |<none>| input image}"             // input image is the first argument (positional)
         "{@outdir         |./out | output directory}"
         "{@histogram_file |<none>| file for histogram matching}"
-        "{mode m          |1     | 1 = Histogram Equalization [default]\n\t\t2 = Histogram Matching an Image\n\t\t3 = Historgram matching a file}"
+        "{mode m          |1     | 1 = Histogram Equalization [default]\n\t\t2 = Histogram Matching an Image\n\t\t3 = Historgram Matching a File}"
         "{help h          |      | show help message}";           // optional
 
     cv::CommandLineParser parser(argc, argv, keys);
