@@ -15,19 +15,15 @@ parse_arguments(
     const char** argv,
     std::string* input_image,
     std::string* output_dir_path,
-    uint* sampling_method,
-    uint* depth,
-    uint* intensity,
-    bool* grayscale
+    std::string* histogram_file,
+    uint* mode
 ) {
     cv::String keys =
-        "{@image       |<none>| input image}"             // input image is the first argument (positional)
-        "{@outdir      |./out | output directory}"
-        "{sampling s   |1     | 1 = deletion/duplication\n\t\t2 = averaging/interpolation\n\t\t3 = pyramids}"
-        "{depth d      |1     | layers of downsampling}"                 // optional, 
-        "{intensity i  |0     | number of intensity levels}"                 // optional,
-        "{grayscale g  |      | output grayscale}"
-        "{help h       |      | show help message}";           // optional
+        "{@imagefile      |<none>| input image}"             // input image is the first argument (positional)
+        "{@outdir         |./out | output directory}"
+        "{@histogram_file |<none>| file for histogram matching}"
+        "{mode m          |1     | 1 = Histogram Equalization [default]\n\t\t2 = Histogram Matching an Image\n\t\t3 = Historgram matching a file}"
+        "{help h          |      | show help message}";           // optional
 
     cv::CommandLineParser parser(argc, argv, keys);
 
@@ -57,42 +53,22 @@ parse_arguments(
     }
 
     try {
-        *sampling_method = (uint) parser.get<uint>("s") ? parser.get<uint>("s") : 1;
-        if (*sampling_method < 1 || *sampling_method > 3) {
-            std::cerr << "Sampling method can only be from 1 to 3." << std::endl;
+        *histogram_file = (std::string) parser.get<std::string>(1).c_str();
+    } catch (...) {
+        std::cerr << "Failed to parse output histogram_file argument!:" << std::endl;
+        return -1;
+    }
+
+    try {
+        *mode = (uint) parser.get<uint>("m") ? parser.get<uint>("m") : 1;
+        if (*mode < 1 || *mode > 3) {
+            std::cerr << "Mode can only be from 1 to 3." << std::endl;
             return -1;
         }
     } catch (...) {
         std::cerr << "Failed to parse sampling_method argument." << std::endl;
         return -1;
     }
-
-    try {
-        *grayscale = (bool) parser.has("g") ? true : false;
-    } catch (...) {
-        std::cerr << "Failed to parse grayscale argument." << std::endl;
-        return -1;
-    }
-
-    try {
-        *depth = (uint) parser.get<uint>("d") ? parser.get<uint>("d") : 1;
-        if (*depth > 10) std::cout << "You're wasting your time." << std::endl;
-    } catch (...) {
-        std::cerr << "Failed to parse depth argument." << std::endl;
-        return -1;
-    }
-
-    try {
-        *intensity = (uint) parser.get<uint>("i") ? parser.get<uint>("i") : 1;
-        if (*intensity < 1 || *intensity > 7) {
-            std::cerr << "Intensity can only be from 1 to 7." << std::endl;
-            return -1;
-        }
-    } catch (...) {
-        std::cerr << "Failed to parse intensity argument." << std::endl;
-        return -1;
-    }
-
 
     return 1;
 }

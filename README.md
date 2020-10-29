@@ -17,6 +17,20 @@ improved if we can redistribute the intensities to span a wider range of intensi
 ### Usage
 
 ```
-Usage: histo.exe
+Usage: histo.exe [params] imagefile outdir histogram_file
+
+        -h, --help (value:true)
+                show help message
+        -m, --mode (value:1)
+                1 = Histogram Equalization [default]
+                2 = Histogram Matching an Image
+                3 = Historgram matching a file
+
+        imagefile (value:<none>)
+                input image
+        outdir (value:./out)
+                output directory
+        histogram_file (value:<none>)
+                file for histogram matching
 
 ```

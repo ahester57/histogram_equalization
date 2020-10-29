@@ -15,7 +15,7 @@ OBJECTS = $(patsubst %.cpp, %.o, ${SOURCES})
 
 default: all
 
-all: sample
+all: histo
 
 %.o: %.cpp $(DEPS)
 	${CC} -c $^ -I ${IDIR} -I ${IOPENCV}

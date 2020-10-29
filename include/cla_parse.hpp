@@ -13,10 +13,8 @@ int parse_arguments(
     const char** argv,
     std::string* input_image,
     std::string* output_dir_path,
-    uint* sampling_method,
-    uint* depth,
-    uint* intensity,
-    bool* grayscale
+    std::string* histogram_file,
+    uint* mode
 );
 
 #endif

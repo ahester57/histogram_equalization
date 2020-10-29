@@ -25,10 +25,7 @@ wait_key()
 
 int
 run_spatial_sampling(
-    cv::Mat down_image,
-    uint depth,
-    uint intensity_levels,
-    bool grayscale,
+    cv::Mat original_image,
     std::string output_dir_path,
     std::string file_prefix,
     std::function<cv::Mat(cv::Mat)> down_function,
@@ -37,31 +34,14 @@ run_spatial_sampling(
 )
 {
     cv::Mat up_image;
-    std::string grayscale_string = grayscale ? "grayscale_" : "";
-    std::string intensity_string = "intensity_" + std::to_string(intensity_levels) + "_";
-    for (int i = 0; i < depth; ++i) {
-        // run the downsample function
-        down_image = down_function(down_image);
-        std::cout << "Image size is:\t\t\t" << down_image.cols << "x" << down_image.rows << std::endl;
+    // run the downsample function
+    original_image = down_function(original_image);
+    std::cout << "Image size is:\t\t\t" << original_image.cols << "x" << original_image.rows << std::endl;
 
-        std::string down_file_name = file_prefix + "_down_" + grayscale_string + intensity_string + inter_type + "_" + std::to_string(i) + ".png";
-        write_img_to_file(down_image, output_dir_path, down_file_name);
+    std::string down_file_name = file_prefix + "_down_" + inter_type + ".png";
+    write_img_to_file(original_image, output_dir_path, down_file_name);
 
-        cv::imshow(down_file_name, down_image);
-        if (!wait_key()) return 0;
-
-        up_image = down_image;
-        for (int j = 0; j <= i; ++j) {
-            up_image = up_function(up_image);
-            std::cout << "Image size is:\t\t\t" << up_image.cols << "x" << up_image.rows << std::endl;
-
-            std::string up_file_name = file_prefix + "down_" + grayscale_string + intensity_string + inter_type + "_" +  std::to_string(i) + "_up_" + std::to_string(j) + ".png";
-            write_img_to_file(up_image, output_dir_path, up_file_name);
-
-            cv::imshow(up_file_name, up_image);
-            if (!wait_key()) return 0;
-        }
-    }
+    cv::imshow(down_file_name, original_image);
     return 1;
 }
 
@@ -69,35 +49,31 @@ int
 main(int argc, const char** argv)
 {
     // CLA variables
-    uint sampling_method;
-    uint depth;
-    uint intensity;
-    bool grayscale;
+    uint mode;
+
     std::string input_image;
     std::string output_dir_path;
+    std::string histogram_file;
 
     // parse and save command line args
     int parse_result = parse_arguments(
         argc, argv,
-        &input_image, &output_dir_path,
-        &sampling_method, &depth,
-        &intensity, &grayscale
+        &input_image,
+        &output_dir_path,
+        &histogram_file,
+        &mode
     );
     if (parse_result != 1) return parse_result;
 
     // open image
-    img_struct_t* og_image = open_image(input_image.c_str(), grayscale);
+    img_struct_t* og_image = open_image(input_image.c_str(), true);
     
     if (og_image == NULL) {
         std::cerr << "Could not open image :(" << std::endl;
         return -1;
     }
 
-    cv::Mat down_image = og_image->image;
-
-    if (intensity > 0 && intensity < 8) {
-        down_image = intensity_adjust(og_image->image, intensity);
-    }
+    cv::Mat original_image = og_image->image;
 
     cv::imshow("original", og_image->image);
     cv::waitKey(0);
@@ -106,7 +82,7 @@ main(int argc, const char** argv)
     std::function<cv::Mat(cv::Mat)> up_function;
     std::string inter_type;
 
-    switch (sampling_method) {
+    switch (mode) {
         case 1:
             // do deletions/replications
             std::cout << "Using deletion and replication for sampling." << std::endl;
@@ -135,10 +111,7 @@ main(int argc, const char** argv)
     }
 
     return !run_spatial_sampling(
-        down_image,
-        depth,
-        intensity,
-        grayscale,
+        original_image,
         output_dir_path,
         og_image->file_name,
         down_function,
