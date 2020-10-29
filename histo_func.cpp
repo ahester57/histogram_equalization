@@ -7,6 +7,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include <iostream>
+#include <math.h>
 
 #include "./include/histo_func.hpp"
 
@@ -44,4 +45,33 @@ cdf_from_normalized(float* normalized_histogram, float* cdf)
     for (uint i = 1; i < 256; i++) {
         cdf[i] = normalized_histogram[i] + cdf[i-1];
     }
+}
+
+void
+create_lookup_table(float* cdf, uint* lookup_table)
+{
+    for (uint i = 0; i < 256; i++) {
+        lookup_table[i] = std::round(cdf[i] * 255.0);
+    }
+}
+
+
+cv::Mat
+apply_histogram(cv::Mat src, uint* lookup_table)
+{
+    cv::Mat dst = cv::Mat::zeros(cv::Size(src.cols, src.rows), src.type());
+    if (src.channels() == 1) {
+        std::cout << "Grayscale Image <uchar>" << std::endl;
+    } else {
+        std::cout << "Unknown Image. Goodbye." << std::endl;
+        return src;
+    }
+    for (int r = 0; r < src.rows; r++) {
+        for (int c = 0; c < src.cols; c++) {
+            // channels is 1. grayscale
+            uint pixel = (uint) src.at<uchar>(r, c);
+            dst.at<uchar>(r, c) = (uchar) lookup_table[pixel];
+        }
+    }
+    return dst;
 }

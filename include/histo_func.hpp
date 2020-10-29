@@ -10,5 +10,7 @@
 void build_intensity_map(cv::Mat src, uint* intensity_counts);
 void normalize_histogram(uint* intensity_counts, uint num_pixels, float* normalized_histogram);
 void cdf_from_normalized(float* normalized_histogram, float* cdf);
+void create_lookup_table(float* cdf, uint* lookup_table);
+cv::Mat apply_histogram(cv::Mat src, uint* lookup_table);
 
 #endif

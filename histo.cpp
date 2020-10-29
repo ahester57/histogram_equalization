@@ -118,16 +118,21 @@ main(int argc, const char** argv)
     float cdf[256] = { 0 };
     cdf_from_normalized(normalized_histogram, cdf);
 
+    // add lookup table
+    uint lookup_table[256] = { 0 };    // map for intensity counts
+    create_lookup_table(cdf, lookup_table);
     uint16_t count = 0;
     for (uint i = 0; i < 256; i++) {
         ++count;
-        std::cout << i << ": " << cdf[i] << std::endl;
+        std::cout << i << ": " << lookup_table[i] << std::endl;
     }
     std::cout << count;
+    // apply the equalization to the image
+    cv::Mat equalized_image = apply_histogram(original_image, lookup_table);
 
-    // TODO add lookup table
-
-    // TODO apply the equalization to the image
+    // display the equalized image
+    cv::imshow("equalized", equalized_image);
+    wait_key();
 
     // TODO use run_histogram_function() for each mode
 
