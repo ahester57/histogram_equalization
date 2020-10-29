@@ -189,17 +189,3 @@ intensity_adjust(cv::Mat src, uint8_t level)
     src.release();
     return dst;
 }
-
-void
-build_intensity_map(cv::Mat src, uint* intensity_counts)
-{
-    if (src.channels() != 1) {
-        std::cerr << "Not a Grayscale Image" << std::endl;
-        throw "Not a Grayscale Image";
-    }
-    for (int r = 0; r < src.rows; r++) {
-        for (int c = 0; c < src.cols; c++) {
-            intensity_counts[(uint)src.at<uchar>(r, c)]++;
-        }
-    }
-}

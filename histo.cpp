@@ -9,6 +9,7 @@
 #include "./include/dir_func.hpp"
 #include "./include/img_transform.hpp"
 #include "./include/img_struct.hpp"
+#include "./include/histo_func.hpp"
 
 
 int
@@ -104,21 +105,31 @@ main(int argc, const char** argv)
 
     // display the original image
     cv::imshow("original", original_image);
-    cv::waitKey(0);
+    wait_key();
 
     uint intensity_counts[256] = { 0 };    // map for intensity counts
     build_intensity_map(original_image, intensity_counts);
+
+    // normalize histogram of original image
+    float normalized_histogram[256] = { 0 };
+    normalize_histogram(intensity_counts, original_image.rows * original_image.cols, normalized_histogram);
+
+    // compute the cumulative distribution function
+    float cdf[256] = { 0 };
+    cdf_from_normalized(normalized_histogram, cdf);
+
     uint16_t count = 0;
     for (uint i = 0; i < 256; i++) {
         ++count;
-        std::cout << i << ": " << intensity_counts[i] << std::endl;
+        std::cout << i << ": " << cdf[i] << std::endl;
     }
     std::cout << count;
-    // compute histogram of original image
 
-    // TODO equalize the histogram
+    // TODO add lookup table
 
-    // TODO apply the equalization
+    // TODO apply the equalization to the image
+
+    // TODO use run_histogram_function() for each mode
 
     return 0;
 }
