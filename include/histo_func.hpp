@@ -9,6 +9,7 @@
 
 cv::Mat run_equalization(cv::Mat image);
 cv::Mat run_image_matching(cv::Mat image, cv::Mat match_to);
+cv::Mat run_histogram_matching(cv::Mat image, std::string file_name);
 void build_intensity_map(cv::Mat src, uint* intensity_counts);
 void normalize_histogram(uint* intensity_counts, uint num_pixels, float* normalized_histogram);
 void cdf_from_normalized(float* normalized_histogram, float* cdf);

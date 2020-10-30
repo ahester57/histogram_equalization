@@ -7,6 +7,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include <iostream>
+#include <fstream>
 #include <math.h>
 
 #include "./include/histo_func.hpp"
@@ -60,6 +61,22 @@ run_image_matching(cv::Mat image, cv::Mat match_to)
     return matched_image;
 }
 
+cv::Mat
+run_histogram_matching(cv::Mat image, std::string file_name)
+{
+    // apply the equalization to the image
+    std::ifstream infile(file_name);
+    uint num;
+    uint count = 0;
+    uint lookup_histogram_file [256] = { 0 }; // for mode 3
+    while (infile >> num)
+    {
+        lookup_histogram_file[count++] = num;
+    }
+    cv::Mat matched_image = apply_histogram(image, lookup_histogram_file);
+    return matched_image;
+}
+
 // take an image, and array[256]. fill array with count of intensity levels
 void
 build_intensity_map(cv::Mat src, uint* intensity_counts)
@@ -74,7 +91,6 @@ build_intensity_map(cv::Mat src, uint* intensity_counts)
         }
     }
 }
-
 
 // normalize an intensity level array, such as the one provided by build_intensity_map.
 void

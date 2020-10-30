@@ -14,7 +14,6 @@ parse_arguments(
     int argc,
     const char** argv,
     std::string* input_image,
-    std::string* output_dir_path,
     std::string* histogram_file,
     uint* mode
 ) {
