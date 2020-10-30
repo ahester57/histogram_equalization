@@ -25,27 +25,6 @@ wait_key()
 }
 
 int
-run_histogram_function(
-    cv::Mat original_image,
-    std::string output_dir_path,
-    std::string file_prefix,
-    std::function<cv::Mat(cv::Mat)> histogram_function,
-    std::string mode_string
-)
-{
-    cv::Mat up_image;
-    // run the downsample function
-    original_image = histogram_function(original_image);
-    std::cout << "Image size is:\t\t\t" << original_image.cols << "x" << original_image.rows << std::endl;
-
-    std::string down_file_name = file_prefix + "_down_" + mode_string + ".png";
-    write_img_to_file(original_image, output_dir_path, down_file_name);
-
-    cv::imshow(down_file_name, original_image);
-    return 1;
-}
-
-int
 main(int argc, const char** argv)
 {
     // CLA variables
@@ -73,28 +52,27 @@ main(int argc, const char** argv)
         return -1;
     }
 
-    cv::Mat original_image = og_image->image;
+    // display the original image
+    cv::imshow("original", og_image->image);
+    wait_key();
 
-    std::function<cv::Mat(cv::Mat)> histogram_function;
     std::string mode_string;
-
+    cv::Mat matched_image;
     switch (mode) {
         case 1:
             // do deletions/replications
             std::cout << "Histogram equalization." << std::endl;
-            histogram_function = downsample_delete;
             mode_string = "equalization";
+            matched_image = run_equalization(og_image->image);
             break;
         case 2:
             // do the averaging/interpolation
             std::cout << "Histogram matching an image." << std::endl;
-            histogram_function = downsample_average;
             mode_string = "matching_an_image";
             break;
         case 3:
             // do the pyraminds
             std::cout << "Historgram matching a file." << std::endl;
-            histogram_function = downsample_pyramid;
             mode_string = "matching_a_file";
             break;
         default:
@@ -103,37 +81,9 @@ main(int argc, const char** argv)
             return -1;
     }
 
-    // display the original image
-    cv::imshow("original", original_image);
-    wait_key();
-
-    uint intensity_counts[256] = { 0 };    // map for intensity counts
-    build_intensity_map(original_image, intensity_counts);
-
-    // normalize histogram of original image
-    float normalized_histogram[256] = { 0 };
-    normalize_histogram(intensity_counts, original_image.rows * original_image.cols, normalized_histogram);
-
-    // compute the cumulative distribution function
-    float cdf[256] = { 0 };
-    cdf_from_normalized(normalized_histogram, cdf);
-
-    // add lookup table
-    uint lookup_table[256] = { 0 };    // map for intensity counts
-    create_lookup_table(cdf, lookup_table);
-    uint16_t count = 0;
-    for (uint i = 0; i < 256; i++) {
-        ++count;
-        std::cout << i << ": " << lookup_table[i] << std::endl;
-    }
-    std::cout << count;
-    // apply the equalization to the image
-    cv::Mat equalized_image = apply_histogram(original_image, lookup_table);
-
     // display the equalized image
-    cv::imshow("equalized", equalized_image);
+    cv::imshow(mode_string, matched_image);
     wait_key();
-
     // TODO use run_histogram_function() for each mode
 
     return 0;

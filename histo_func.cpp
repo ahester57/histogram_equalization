@@ -12,6 +12,30 @@
 #include "./include/histo_func.hpp"
 
 
+cv::Mat
+run_equalization(cv::Mat image)
+{
+    // map for intensity counts
+    uint intensity_counts[256] = { 0 };
+    build_intensity_map(image, intensity_counts);
+
+    // normalize histogram of original image
+    float normalized_histogram[256] = { 0 };
+    normalize_histogram(intensity_counts, image.rows * image.cols, normalized_histogram);
+
+    // compute the cumulative distribution function
+    float cdf[256] = { 0 };
+    cdf_from_normalized(normalized_histogram, cdf);
+
+    // add lookup table
+    uint lookup_table[256] = { 0 };    // map for intensity counts
+    create_lookup_table(cdf, lookup_table);
+
+    // apply the equalization to the image
+    cv::Mat equalized_image = apply_histogram(image, lookup_table);
+    return equalized_image;
+}
+
 // take an image, and array[256]. fill array with count of intensity levels
 void
 build_intensity_map(cv::Mat src, uint* intensity_counts)
