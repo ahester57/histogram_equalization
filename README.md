@@ -29,19 +29,17 @@ the specified histogram from an input image is called histogram specification/hi
 ### Usage
 
 ```
-Usage: histo.exe [params] imagefile outdir histogram_file
+Usage: histo.exe [params] imagefile histogram_file
 
         -h, --help (value:true)
                 show help message
         -m, --mode (value:1)
                 1 = Histogram Equalization [default]
                 2 = Histogram Matching an Image
-                3 = Historgram matching a file
+                3 = Historgram Matching a File
 
         imagefile (value:<none>)
                 input image
-        outdir (value:./out)
-                output directory
         histogram_file (value:<none>)
                 file for histogram matching
 
