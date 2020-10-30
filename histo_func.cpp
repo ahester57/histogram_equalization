@@ -36,6 +36,30 @@ run_equalization(cv::Mat image)
     return equalized_image;
 }
 
+cv::Mat
+run_image_matching(cv::Mat image, cv::Mat match_to)
+{
+    // map for intensity counts
+    uint intensity_counts[256] = { 0 };
+    build_intensity_map(match_to, intensity_counts);
+
+    // normalize histogram of original image
+    float normalized_histogram[256] = { 0 };
+    normalize_histogram(intensity_counts, match_to.rows * match_to.cols, normalized_histogram);
+
+    // compute the cumulative distribution function
+    float cdf[256] = { 0 };
+    cdf_from_normalized(normalized_histogram, cdf);
+
+    // add lookup table
+    uint lookup_table[256] = { 0 };    // map for intensity counts
+    create_lookup_table(cdf, lookup_table);
+
+    // apply the equalization to the image
+    cv::Mat matched_image = apply_histogram(image, lookup_table);
+    return matched_image;
+}
+
 // take an image, and array[256]. fill array with count of intensity levels
 void
 build_intensity_map(cv::Mat src, uint* intensity_counts)

@@ -20,7 +20,6 @@ parse_arguments(
 ) {
     cv::String keys =
         "{@imagefile      |<none>| input image}"             // input image is the first argument (positional)
-        "{@outdir         |./out | output directory}"
         "{@histogram_file |<none>| file for histogram matching}"
         "{mode m          |1     | 1 = Histogram Equalization [default]\n\t\t2 = Histogram Matching an Image\n\t\t3 = Historgram Matching a File}"
         "{help h          |      | show help message}";           // optional
@@ -46,14 +45,7 @@ parse_arguments(
     }
 
     try {
-        *output_dir_path = (std::string) parser.get<std::string>(1).c_str();
-    } catch (...) {
-        std::cerr << "Failed to parse output directory argument!:" << std::endl;
-        return -1;
-    }
-
-    try {
-        *histogram_file = (std::string) parser.get<std::string>(2).c_str();
+        *histogram_file = (std::string) parser.get<std::string>(1).c_str();
     } catch (...) {
         std::cerr << "Failed to parse output histogram_file argument!:" << std::endl;
         return -1;

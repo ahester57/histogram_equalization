@@ -46,9 +46,9 @@ main(int argc, const char** argv)
 
     // open image
     img_struct_t* og_image = open_image(input_image.c_str(), true);
-    
+
     if (og_image == NULL) {
-        std::cerr << "Could not open image :(" << std::endl;
+        std::cerr << "Could not open image :( " << input_image << std::endl;
         return -1;
     }
 
@@ -58,17 +58,23 @@ main(int argc, const char** argv)
 
     std::string mode_string;
     cv::Mat matched_image;
+    img_struct_t* match_to_image;
     switch (mode) {
         case 1:
-            // do deletions/replications
             std::cout << "Histogram equalization." << std::endl;
             mode_string = "equalization";
             matched_image = run_equalization(og_image->image);
             break;
         case 2:
-            // do the averaging/interpolation
             std::cout << "Histogram matching an image." << std::endl;
             mode_string = "matching_an_image";
+            // open image
+            match_to_image = open_image(histogram_file.c_str(), true);
+            if (match_to_image == NULL) {
+                std::cerr << "Could not open image :( Second image required :( " << histogram_file << std::endl;
+                return -1;
+            }
+            matched_image = run_image_matching(og_image->image, match_to_image->image);
             break;
         case 3:
             // do the pyraminds
