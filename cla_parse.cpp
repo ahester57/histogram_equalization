@@ -38,6 +38,10 @@ parse_arguments(
 
     try {
         *input_image = (std::string) parser.get<std::string>(0).c_str();
+        if (input_image == NULL || input_image->size() == 0) {
+            parser.printMessage();
+            return -1;
+        }
     } catch (...) {
         std::cerr << "Failed to parse input image argument!:" << std::endl;
         return -1;

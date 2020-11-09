@@ -66,14 +66,25 @@ run_histogram_matching(cv::Mat image, std::string file_name)
 {
     // apply the equalization to the image
     std::ifstream infile(file_name);
-    uint num;
+    float num;
     uint count = 0;
-    uint lookup_histogram_file [256] = { 0 }; // for mode 3
+    float normalized_histogram_file [256] = { 0 }; // for mode 3
+
     while (infile >> num)
     {
-        lookup_histogram_file[count++] = num;
+        // read normalized histogram from file
+        normalized_histogram_file[count++] = num;
     }
-    cv::Mat matched_image = apply_histogram(image, lookup_histogram_file);
+
+    // compute the cumulative distribution function
+    float cdf[256] = { 0 };
+    cdf_from_normalized(normalized_histogram_file, cdf);
+
+    // add lookup table
+    uint lookup_table[256] = { 0 };    // map for intensity counts
+    create_lookup_table(cdf, lookup_table);
+
+    cv::Mat matched_image = apply_histogram(image, lookup_table);
     return matched_image;
 }
 
